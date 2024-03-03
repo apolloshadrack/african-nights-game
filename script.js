@@ -13,7 +13,7 @@ let highScore = localStorage.getItem('highScore') || 0;
 
 const spaceShipImg = new Image();
 spaceShipImg.onload = startGame;
-spaceShipImg.src = 'assets/ARWANILATOR.png';
+spaceShipImg.src = 'assets/Obehilator.png';
 const logoImg = new Image();
 logoImg.src = 'assets/Logo.png'; // Path to the logo image
 
@@ -80,26 +80,37 @@ function handleLasers() {
 }
 
 function createAsteroid() {
-    const size = Math.random() * 20 + 10;
+    const size = Math.random() * 20 + 10; // Random size between 10 and 30
     const x = Math.random() * (canvas.width - size);
-    const y = -size;
-    const asteroid = { x, y, size };
+    const y = -size; // Start just above the canvas
+    const colors = ['yellow', 'pink', 'orange']; // Example colors
+    const points = [10, 20, 30]; // Points associated with each color
+    const colorIndex = Math.floor(Math.random() * colors.length); // Random index for color and points
+    const asteroid = {
+        x, 
+        y, 
+        size, 
+        color: colors[colorIndex],
+        points: points[colorIndex]
+    };
     asteroids.push(asteroid);
-    setTimeout(createAsteroid, Math.random() * 2000 + 500);
+    setTimeout(createAsteroid, Math.random() * 2000 + 500); // Create a new asteroid every 0.5 to 2.5 seconds
 }
 
 function handleAsteroids() {
     for (let i = asteroids.length - 1; i >= 0; i--) {
-        asteroids[i].y += asteroidSpeed;
-        ctx.fillStyle = 'grey';
+        const asteroid = asteroids[i];
+        asteroid.y += asteroidSpeed;
+        ctx.fillStyle = asteroid.color;
         ctx.beginPath();
-        ctx.arc(asteroids[i].x, asteroids[i].y, asteroids[i].size, 0, Math.PI * 2);
+        ctx.arc(asteroid.x, asteroid.y, asteroid.size, 0, Math.PI * 2);
         ctx.fill();
-        if (asteroids[i].y - asteroids[i].size > canvas.height) {
+        if (asteroid.y - asteroid.size > canvas.height) {
             asteroids.splice(i, 1);
         }
     }
 }
+
 
 function checkLaserAsteroidCollision() {
     for (let i = lasers.length - 1; i >= 0; i--) {
@@ -111,8 +122,8 @@ function checkLaserAsteroidCollision() {
                 laser.y < asteroid.y + asteroid.size &&
                 laser.y + laser.height > asteroid.y) {
                 lasers.splice(i, 1);
+                score += asteroid.points; // Increase score by asteroid's point value
                 asteroids.splice(j, 1);
-                score += 10;
                 if (score > highScore) {
                     highScore = score;
                     localStorage.setItem('highScore', highScore);
